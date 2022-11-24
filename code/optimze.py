@@ -53,7 +53,7 @@ def optimize_changed_couple(in_data,out_data):
     mach_used = [[] for _ in range(in_data['nb_machines'])]
     op_used = [[] for _ in range (in_data['nb_operators'])]
 
-    for id_task in range(out_data['task_to']):
+    for id_task in range(in_data['nb_tasks']):
         debut_time = out_data['task_start'][id_task]
         machine = out_data['task_to'][id_task][0]
         op = out_data['task_to'][id_task][1]
@@ -62,8 +62,10 @@ def optimize_changed_couple(in_data,out_data):
         op_used[op].append((debut_time,end_time))
 
     for i in range(in_data['nb_operators']):
-        op_used[i] = sorted(op_used[i])      
+        op_used[i] = sorted(op_used[i])
     
     for i in range(in_data['nb_machines']):
         mach_used[i] = sorted(mach_used[i])
+
+    
 
