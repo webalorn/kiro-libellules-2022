@@ -1,6 +1,8 @@
+import copy import deepcopy
 from util import *
 
 def optimize_simple(in_data, out_data):
+    out_data = deepcopy(out_data)
     machine_at = set()
     ope_at = set()
     sorted_task_ids = task_ids_sorted_by_time(out_data['time'])
@@ -46,3 +48,4 @@ def optimize_simple(in_data, out_data):
             ope_at.add((a_ope, t0_last))
         
         job_last_at[in_data['job_id'][task_id]] = task_last_t+1
+    return out_data
