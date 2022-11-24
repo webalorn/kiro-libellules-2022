@@ -1,10 +1,9 @@
 import random
+from copy import deepcopy
 
 class Job:
-    def __init__(self):
-        pass
-
-    def __init__(self, job_id, seq, rel, due, w, tasks):
+    def __init__(self, job_id=None, seq=None, rel=None, due=None, w=None, tasks=None):
+        if job_id is None: return
         self.id = job_id
         self.seq = [tasks[k] for k in seq]
         self.rel = rel
@@ -16,13 +15,18 @@ class Job:
 
     def copy(self):
         ret = Job()
-        ret.id = self.id
-        ret.seq = self.seq
-        ret.rel = self.rel
-        ret.due = self.due
-        ret.w = self.w
-        ret.next_task = self.next_task
-        ret.remt = self.remt
+        ret.load(self)
+
+        return ret
+
+    def load(self, other):
+        self.id =  other.id
+        self.seq = other.seq
+        self.rel = other.rel
+        self.due = other.due
+        self.w =   other.w
+        self.next_task = other.next_task
+        self.remt = other.remt
 
     def finished(self):
         return self.next_task == len(self.seq)
@@ -75,10 +79,8 @@ class Task:
         self.using = using
 
 class State:
-    def __init__(self):
-        pass
-
-    def __init__(self, data):
+    def __init__(self, data=None):
+        if data is None: return
         self.data = data
         self.nb_jobs = data["nb_jobs"]
         self.nb_tasks = data["nb_tasks"]
@@ -103,21 +105,22 @@ class State:
 
     def copy(self):
         ret = State()
-        ret.data = self.data
-        ret.nb_jobs = self.nb_jobs
-        ret.nb_tasks = self.nb_tasks
-        ret.nb_machines = self.nb_machines
-        ret.nb_operators = self.nb_operators
-
-        ret.tasks = self.tasks
-        ret.jobs = [j.copy() for j in jobs]
-        ret.time = self.time
-        ret.remt_machines = self.remt_machines.deepcopy()
-        ret.remt_operators = self.remt_operators.deepcopy()
-
-        ret.trace = self.trace.deepcopy()
+        ret.load(self)
 
         return ret
+
+    def load(self, other):
+        self.data =         other.data
+        self.nb_jobs =      other.nb_jobs
+        self.nb_tasks =     other.nb_tasks
+        self.nb_machines =  other.nb_machines
+        self.nb_operators = other.nb_operators
+        self.tasks = other.tasks
+        self.jobs = [j.copy() for j in other.jobs]
+        self.time = other.time
+        self.remt_machines = deepcopy(other.remt_machines)
+        self.remt_operators = deepcopy(other.remt_operators)
+        self.trace = deepcopy(other.trace)
 
     def is_workpair_free(self, pair):
         return self.remt_machines[pair[0]] == 0 and self.remt_operators[pair[1]] == 0
@@ -141,8 +144,6 @@ class State:
         random.shuffle(self.jobs)
         for job in self.jobs:
             if not job.sleeping(self.time): continue
-            wps = job.get_workpairs().copy()
-            random.shuffle(wps)
             for wp in job.get_workpairs():
                 if self.is_workpair_free(wp):
                     self.assign_work(job.next_id(), wp, job.next_time())
@@ -162,12 +163,12 @@ class State:
                     break
 
     def cautious_force_plan(self):
-        sort(self.jobs, key=Jobs.get_bonus_time, reverse=True)
+        self.jobs.sort(key=(lambda x: x.get_bonus_time(self.time)))
         for job in self.jobs:
             if not job.sleeping(self.time): continue
             best_nb = 0
             best_state = None
-            for k in range(10):
+            for k in range(1):
                 tmp = self.copy()
                 nb = 0
                 wps = job.get_workpairs().copy()
@@ -181,7 +182,7 @@ class State:
                 if nb > best_nb:
                     best_nb = nb
                     best_state = tmp
-            self = tmp
+            self.load(tmp)
 
     def finished(self):
         return all([job.finished() for job in self.jobs])
@@ -225,5 +226,9 @@ def process_cautious(data):
     x = State(data)
     return x.cautious_sol()
 
+def process_cautious_force(data):
+    x = State(data)
+    return x.cautious_force_sol()
+
 def process(data):
-    return process_cautious(data)
+    return process_cautious_force(data)
