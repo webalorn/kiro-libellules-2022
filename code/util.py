@@ -20,6 +20,14 @@ OUT_SUFFIX = '-out-1' # TODO : to have different solutions names
 UNIT_PENALTY = 6
 TARDINESS_COST = 1
 
+# ========== Functions for this specific problem ==========
+
+def task_ids_sorted_by_time(times):
+    task_ids = list(range(len(times)))
+    task_ids.sort(key = lambda x : times[x])
+    return task_ids
+
+
 # ========== Compute vals on sols ==========
 
 def generate_empty_solution(in_data):
