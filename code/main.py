@@ -3,15 +3,16 @@ import time
 # TODO : should import functions from modules
 import victor
 import explorer
+from optimze import *
 
 def generate_base_solution(in_data):
     # return victor.process_very_basic(in_data)
     return explorer.generate_with_exploration(in_data)
     #return {'empty' : True} # TODO : use functions from modules
 
-def improve_sol(data):
-    
-    return data # TODO : use functions from modules
+def improve_sol(in_data,out_data):
+    return optimize_changed_couple(in_data,out_data)
+
 
 # ========== Main loop ==========
 
