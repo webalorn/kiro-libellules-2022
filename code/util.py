@@ -217,10 +217,6 @@ def eval_sol(in_data, out_data, check=False):
     score = 0
     for job_id in range(in_data['nb_jobs']):
         last_task = in_data['jobs']['sequence'][job_id][-1]
-        print(out_data)
-        print(in_data)
-        print("====================")
-        print("====================")
         end_time = out_data['task_start'][last_task] + in_data['tasks']['time'][last_task]
         max_time = in_data['jobs']['due'][job_id]
         w = in_data['jobs']['weight'][job_id]
