@@ -49,3 +49,26 @@ def optimize_simple(in_data, out_data):
         
         job_last_at[in_data['job_id'][task_id]] = task_last_t+1
     return out_data
+
+
+#Look if it can replace a current couple for a task with another more interesting couple.
+def optimize_changed_couple(in_data,out_data):
+    mach_used = [[] for _ in range(in_data['nb_machines'])]
+    op_used = [[] for _ in range (in_data['nb_operators'])]
+
+    for id_task in range(in_data['nb_tasks']):
+        debut_time = out_data['task_start'][id_task]
+        machine = out_data['task_to'][id_task][0]
+        op = out_data['task_to'][id_task][1]
+        end_time = debut_time+in_data['tasks']['time'][id_task]
+        mach_used[machine].append((debut_time,end_time))
+        op_used[op].append((debut_time,end_time))
+
+    for i in range(in_data['nb_operators']):
+        op_used[i] = sorted(op_used[i])
+    
+    for i in range(in_data['nb_machines']):
+        mach_used[i] = sorted(mach_used[i])
+
+    
+
