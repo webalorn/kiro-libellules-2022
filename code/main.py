@@ -1,9 +1,11 @@
 from util import *
 import time
 # TODO : should import functions from modules
+import victor
 
 def generate_base_solution(in_data):
-    return {'empty' : True} # TODO : use functions from modules
+    return victor.process_very_basic(in_data)
+    #return {'empty' : True} # TODO : use functions from modules
 
 def improve_sol(data):
     return data # TODO : use functions from modules
@@ -13,7 +15,7 @@ def improve_sol(data):
 def main():
     inputs_names = INPUT_NAMES
     # If we want to tune only some solutions ->
-    # inputs_names = [] 
+    inputs_names = ["tiny.json"] 
 
     start_time = time.time()
     read_all_inputs()

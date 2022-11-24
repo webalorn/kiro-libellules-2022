@@ -128,6 +128,7 @@ def read_sol(name):
     return data
 
 def transform_to_output(data):
+    assert False
     return [
         {"task": k+1, "start": t, "machine": m+1, "operator": o+1}
         for (k, ((m, o), t)) in enumerate(zip(data["task_to"], data["task_start"]))
@@ -136,7 +137,7 @@ def transform_to_output(data):
 def output_sol_force_overwrite(name, data):
     p = Path('../sols') / _out_with_suffix(name)
     with open(str(p), 'w') as f:
-        json.dump(transform_to_output(data), f)
+        json.dump(data, f)
 
 def output_sol_if_better(name, data):
     """ Returns True if the solution is better than the last found solution in this program run,
@@ -180,13 +181,13 @@ def eval_sol(in_data, out_data, check=False):
         assert len(out_data['task_to']) == in_data['nb_tasks']
 
         # check if an op can use this machine for the task and if the task begins after the previous one
-        for job_id in range(in_data['nb_job']):
+        for job_id in range(in_data['nb_jobs']):
             rel = in_data['jobs']['release'][job_id]
             for task_id in in_data['jobs']['sequence'][job_id]:
                 start_time = out_data['task_start'][task_id]
                 end_time = start_time + in_data['tasks']['time'][task_id]
                 # task_times.append((start_time, end_time))
-                assert start_time >= rel
+                assert start_time >= rel, task_id
                 rel = end_time
                 assert out_data['task_to'][task_id] in in_data['tasks']['using'][task_id]
             
@@ -194,7 +195,7 @@ def eval_sol(in_data, out_data, check=False):
         mach_used = [[] for _ in range(in_data['nb_machines'])]
         op_used = [[] for _ in range (in_data['nb_operators'])]
 
-        for id_task in range(out_data['task_to']):
+        for id_task in range(in_data['nb_tasks']):
             debut_time = out_data['task_start'][id_task]
             machine = out_data['task_to'][id_task][0]
             op = out_data['task_to'][id_task][1]
@@ -203,12 +204,12 @@ def eval_sol(in_data, out_data, check=False):
             op_used[op].append((debut_time,end_time))
 
         for i in range(in_data['nb_operators']):
-            op_used[i] = op_used[i].sort()
-            assert no_recouvrement[op_used[i]]         
+            op_used[i] = sorted(op_used[i])
+            assert no_recouvrement(op_used[i])
         
         for i in range(in_data['nb_machines']):
-            mach_used[i] = mach_used[i].sort()
-            assert no_recouvrement[op_used[i]]    
+            mach_used[i] = sorted(mach_used[i])
+            assert no_recouvrement(op_used[i])
 
         
 
@@ -216,6 +217,10 @@ def eval_sol(in_data, out_data, check=False):
     score = 0
     for job_id in range(in_data['nb_jobs']):
         last_task = in_data['jobs']['sequence'][job_id][-1]
+        print(out_data)
+        print(in_data)
+        print("====================")
+        print("====================")
         end_time = out_data['task_start'][last_task] + in_data['tasks']['time'][last_task]
         max_time = in_data['jobs']['due'][job_id]
         w = in_data['jobs']['weight'][job_id]
@@ -223,6 +228,8 @@ def eval_sol(in_data, out_data, check=False):
         if end_time > max_time:
             score += w * UNIT_PENALTY
             score += w * TARDINESS_COST * (end_time - max_time)
+
+    return score
 
 def is_better_sol(old_sol_value, new_sol_value):
     return new_sol_value < old_sol_value # TODO : Replace by < if the best value is the lower one
