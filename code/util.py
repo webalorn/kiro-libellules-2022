@@ -8,12 +8,14 @@ import numpy as np
 import json
 import time
 
+import os
+
 BEST_SOLS = {}
 BEST_SOLS_DATA = {}
 IN_DATA = {}
 INPUT_NAMES = [e.name for e in Path('../inputs').iterdir() if e.name.endswith('.json')]
 
-OUT_SUFFIX = '-out-1' # TODO : to have different solutions names
+OUT_SUFFIX = '-out-1-'+os.getlogin() # TODO : to have different solutions names
 
 # ========== Constants ==========
 
