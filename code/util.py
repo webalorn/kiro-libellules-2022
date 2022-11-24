@@ -77,7 +77,7 @@ def preprocess_input(data):
     tasks = dict()
 
     time = [0]*nb_tasks
-    using = [0]*nb_tasks
+    using = [[] for _ in range(nb_tasks)]
 
     tasks_info = data["tasks"]
     for task_i in tasks_info:
@@ -90,7 +90,7 @@ def preprocess_input(data):
             op = couple["operators"][::]
             for elt in range(len(op)):
                 op[elt] -= 1
-            using[ind] = (couple["machine"]-1,op)
+            using[ind].append((couple["machine"]-1,op))
     
     tasks["time"] = time
     tasks["job_id"] = job_id
