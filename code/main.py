@@ -15,7 +15,7 @@ def improve_sol(data):
 def main():
     inputs_names = INPUT_NAMES
     # If we want to tune only some solutions ->
-    inputs_names = ["tiny.json"] 
+    inputs_names = ["huge.json"] 
 
     start_time = time.time()
     read_all_inputs()

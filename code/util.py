@@ -209,7 +209,7 @@ def eval_sol(in_data, out_data, check=False):
         
         for i in range(in_data['nb_machines']):
             mach_used[i] = sorted(mach_used[i])
-            assert no_recouvrement(op_used[i])
+            assert no_recouvrement(mach_used[i])
 
         
 

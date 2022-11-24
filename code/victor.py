@@ -128,9 +128,6 @@ class State:
 
     def very_basic_sol(self):
         while not self.finished():
-            print("left:", self.nb_left())
-            print(self.remt_machines)
-            print(self.remt_operators)
             self.very_basic_plan()
             self.step()
         return self.output()
