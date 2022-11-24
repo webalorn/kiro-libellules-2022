@@ -90,7 +90,7 @@ def preprocess_input(data):
             op = couple["operators"][::]
             for elt in range(len(op)):
                 op[elt] -= 1
-            using[ind].append((couple["machine"]-1,op))
+                using[ind].append((couple["machine"]-1,op[elt]))
     
     tasks["time"] = time
     tasks["job_id"] = job_id
@@ -155,10 +155,24 @@ def output_sol_if_better(name, data):
 
 # ========== Evaluation ==========
 
+def no_recouvrement(l):
+    for i in range (len(l)-1):
+        deb1,fin1 = l[i]
+        deb2,fin2 = l[i+1]
+        if deb2 < fin1:
+            return False
+    
+    return True
+
 def eval_sol(in_data, out_data, check=False):
     # Assert sol is good
     if check:
-        for job_id in range(in_data):
+        # check if there is the correct number of items
+        assert len(out_data['task_to']) == len(out_data['task_start'])
+        assert len(out_data['task_to']) == in_data['nb_tasks']
+
+        # check if an op can use this machine for the task and if the task begins after the previous one
+        for job_id in range(in_data['nb_job']):
             rel = in_data['jobs']['release'][job_id]
             for task_id in in_data['jobs']['sequence'][job_id]:
                 start_time = out_data['task_start'][task_id]
@@ -168,7 +182,27 @@ def eval_sol(in_data, out_data, check=False):
                 rel = end_time
                 assert out_data['task_to'][task_id] in in_data['tasks']['using'][task_id]
             
-            # TODO : check if not 2 machines / operator used at the same time
+        # check if not 2 machines / operator used at the same time
+        mach_used = [[] for _ in range(in_data['nb_machines'])]
+        op_used = [[] for _ in range (in_data['nb_operators'])]
+
+        for id_task in range(out_data['task_to']):
+            debut_time = out_data['task_start'][id_task]
+            machine = out_data['task_to'][id_task][0]
+            op = out_data['task_to'][id_task][1]
+            end_time = debut_time+in_data['tasks']['time'][id_task]
+            mach_used[machine].append((debut_time,end_time))
+            op_used[op].append((debut_time,end_time))
+
+        for i in range(in_data['nb_operators']):
+            op_used[i] = op_used[i].sort()
+            assert no_recouvrement[op_used[i]]         
+        
+        for i in range(in_data['nb_machines']):
+            mach_used[i] = mach_used[i].sort()
+            assert no_recouvrement[op_used[i]]    
+
+        
 
     # Score
     score = 0
