@@ -9,11 +9,11 @@
 
 # Méthode
 
-Pour les petits cas, on peut essayer de résoudre / optimiser à la main !! [En fait sur ce concours, les petits cas sont trop gros]
+Pour les petits cas, on peut essayer de résoudre / optimiser à la main !! [En fait sur ce concours, les petits cas sont trop gros et rapportent peu de points]
 
 ## 1 - solution initiale
 
-- Solutions intelligents et (quasi)-optimales pour les petits cas.
+- Solutions intelligents et (quasi)-optimales pour les petits cas. (Mais dans ce concours peu utile car ca rapporte tres peu de points)
 - Faire une approche générant des solutions aléatoires
 - Faire des solutions heuristiques
   - Si on a des choix équivalents, tirer au hasard ! Cela permet de lancer plusieurs fois et de prendre le meilleur résultat
@@ -29,5 +29,5 @@ Pour les petits cas, on peut essayer de résoudre / optimiser à la main !! [En 
 # Membres
 
 - Théophane Vallaeys (@webalorn)
-- ?
-- ?
+- Victor Miquel (@Swire42)
+- Maena Quemener (@moquem) 
