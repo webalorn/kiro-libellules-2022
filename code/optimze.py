@@ -52,26 +52,26 @@ def optimize_simple(in_data, out_data):
 def optimize_changed_couple(in_data,out_data):
     out_data = out_data.deepcopy()
 
-    mach_used = [[] for _ in range(in_data['nb_machines'])]
-    op_used = [[] for _ in range (in_data['nb_operators'])]
-
-    for id_task in range(in_data['nb_tasks']):
-        debut_time = out_data['task_start'][id_task]
-        machine = out_data['task_to'][id_task][0]
-        op = out_data['task_to'][id_task][1]
-        end_time = debut_time+in_data['tasks']['time'][id_task]
-        mach_used[machine].append((debut_time,end_time,id_task))
-        op_used[op].append((debut_time,end_time,id_task))
-
-    for i in range(in_data['nb_operators']):
-        op_used[i] = sorted(op_used[i])
-    
-    for i in range(in_data['nb_machines']):
-        mach_used[i] = sorted(mach_used[i])
-
-    nb_tasks = in_data['nb_tasks']
-
     for i in range(10000):
+        mach_used = [[] for _ in range(in_data['nb_machines'])]
+        op_used = [[] for _ in range (in_data['nb_operators'])]
+
+        for id_task in range(in_data['nb_tasks']):
+            debut_time = out_data['task_start'][id_task]
+            machine = out_data['task_to'][id_task][0]
+            op = out_data['task_to'][id_task][1]
+            end_time = debut_time+in_data['tasks']['time'][id_task]
+            mach_used[machine].append((debut_time,end_time,id_task))
+            op_used[op].append((debut_time,end_time,id_task))
+
+        for i in range(in_data['nb_operators']):
+            op_used[i] = sorted(op_used[i])
+        
+        for i in range(in_data['nb_machines']):
+            mach_used[i] = sorted(mach_used[i])
+
+        nb_tasks = in_data['nb_tasks']
+
         id_task = randint(0,nb_tasks-1)
 
         m_curr,op_curr = out_data['task_to'][id_task]
