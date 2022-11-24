@@ -14,7 +14,7 @@ def optimize_simple(in_data, out_data):
         machine_at.add((a_machine, task_last_t))
         ope_at.add((a_ope, task_last_t))
     
-    job_last_at = [0] * in_data['nb_tasks']
+    job_last_at = [t0 for t0 in in_data['jobs']['release']]
     for task_id in sorted_task_ids:
         task_t = out_data['time'][task_id]
         durm1 = in_data['tasks']['time'][task_id]-1
