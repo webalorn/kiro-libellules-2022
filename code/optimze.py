@@ -1,6 +1,8 @@
+from copy import deepcopy
 from util import *
 
 def optimize_simple(in_data, out_data):
+    out_data = deepcopy(out_data)
     machine_at = set()
     ope_at = set()
     sorted_task_ids = task_ids_sorted_by_time(out_data['time'])
@@ -14,7 +16,7 @@ def optimize_simple(in_data, out_data):
         machine_at.add((a_machine, task_last_t))
         ope_at.add((a_ope, task_last_t))
     
-    job_last_at = [0] * in_data['nb_tasks']
+    job_last_at = [t0 for t0 in in_data['jobs']['release']]
     for task_id in sorted_task_ids:
         task_t = out_data['time'][task_id]
         durm1 = in_data['tasks']['time'][task_id]-1
@@ -46,6 +48,7 @@ def optimize_simple(in_data, out_data):
             ope_at.add((a_ope, t0_last))
         
         job_last_at[in_data['job_id'][task_id]] = task_last_t+1
+    return out_data
 
 
 #Look if it can replace a current couple for a task with another more interesting couple.
