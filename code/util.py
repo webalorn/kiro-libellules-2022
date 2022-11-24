@@ -121,14 +121,26 @@ def read_all_inputs():
 def _out_with_suffix(name):
     return name[:-5] + OUT_SUFFIX + name[-5:]
 
+def tranform_from_output(data):
+    nb = len(data)
+    task_to = [None for k in range(nb)]
+    task_start = [None for k in range(nb)]
+    for task in data:
+        task_id = task["task"] - 1
+        start = task["start"]
+        mach = task["machine"] - 1
+        op = task["operator"] - 1
+        task_to[task_id] = (mach, op)
+        task_start[task_id] = start
+    return {"task_to": task_to, "task_start": task_start}
+
 def read_sol(name):
     p = Path('../sols') / _out_with_suffix(name)
     with open(str(p), 'r') as f:
-        data = json.load(f)
+        data = tranform_from_output(json.load(f))
     return data
 
 def transform_to_output(data):
-    assert False
     return [
         {"task": k+1, "start": t, "machine": m+1, "operator": o+1}
         for (k, ((m, o), t)) in enumerate(zip(data["task_to"], data["task_start"]))
@@ -137,7 +149,7 @@ def transform_to_output(data):
 def output_sol_force_overwrite(name, data):
     p = Path('../sols') / _out_with_suffix(name)
     with open(str(p), 'w') as f:
-        json.dump(data, f)
+        json.dump(transform_to_output(data), f)
 
 def output_sol_if_better(name, data):
     """ Returns True if the solution is better than the last found solution in this program run,
