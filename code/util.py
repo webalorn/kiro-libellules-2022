@@ -28,6 +28,7 @@ def generate_empty_solution(in_data):
 # ========== Input / Output ==========
 
 def preprocess_input(data):
+
     preprocess_data = dict()
 
     # keys nb_jobs, nb_tasks, nb_machines, nb_operators
@@ -43,7 +44,7 @@ def preprocess_input(data):
     # key jobs
     jobs = dict()
 
-    job_id = [] # for the key tasks
+    job_id = [0]*nb_tasks # for the key tasks
 
     sequence = [0]*nb_jobs
     release = [0]*nb_jobs
