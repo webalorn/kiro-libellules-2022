@@ -10,6 +10,7 @@ def generate_base_solution(in_data):
     #return {'empty' : True} # TODO : use functions from modules
 
 def improve_sol(data):
+    
     return data # TODO : use functions from modules
 
 # ========== Main loop ==========
