@@ -156,12 +156,12 @@ class State:
             t = job.get_bonus_time(self.time)
             if t < 0:
                 # t = (t*2+6) * job.w ** 0.7
-                t = t * job.w ** 0.5
+                t = t * job.w
                 # t = -math.log(1-t)
             else:
-                t = t * job.w ** 0.5
+                t = t * job.w
                 # t = math.log(1+t)
-            t = t + t * random.random() * 0.5
+            t = t + t * random.random() * 0.1
             return t
         self.jobs.sort(key=job_rank)
         for job in self.jobs:
