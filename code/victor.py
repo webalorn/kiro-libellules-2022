@@ -14,6 +14,9 @@ class Job:
     def finished(self):
         return self.next_task == len(self.seq)
 
+    def nb_left(self):
+        return len(self.seq) - self.next_task
+
     def is_released(self, time):
         return self.rel <= time
 
@@ -92,6 +95,7 @@ class State:
         self.time += 1
         for k in range(self.nb_machines):
             self.remt_machines[k] = max(0, self.remt_machines[k] - 1)
+        for k in range(self.nb_operators):
             self.remt_operators[k] = max(0, self.remt_operators[k] - 1)
 
     def very_basic_plan(self):
@@ -109,6 +113,9 @@ class State:
     def finished(self):
         return all([job.finished() for job in self.jobs])
 
+    def nb_left(self):
+        return sum([job.nb_left() for job in self.jobs])
+
     def output(self):
         task_to = [None for k in range(self.nb_tasks)]
         task_start = [None for k in range(self.nb_tasks)]
@@ -121,6 +128,9 @@ class State:
 
     def very_basic_sol(self):
         while not self.finished():
+            print("left:", self.nb_left())
+            print(self.remt_machines)
+            print(self.remt_operators)
             self.very_basic_plan()
             self.step()
         return self.output()
