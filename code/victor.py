@@ -1,6 +1,9 @@
 import random
 
 class Job:
+    def __init__(self):
+        pass
+
     def __init__(self, job_id, seq, rel, due, w, tasks):
         self.id = job_id
         self.seq = [tasks[k] for k in seq]
@@ -10,6 +13,16 @@ class Job:
 
         self.next_task = 0
         self.remt = 0
+
+    def copy(self):
+        ret = Job()
+        ret.id = self.id
+        ret.seq = self.seq
+        ret.rel = self.rel
+        ret.due = self.due
+        ret.w = self.w
+        ret.next_task = self.next_task
+        ret.remt = self.remt
 
     def finished(self):
         return self.next_task == len(self.seq)
@@ -48,6 +61,11 @@ class Job:
         assert not self.finished()
         return self.seq[self.next_task].using
 
+    def get_bonus_time(self, time):
+        if self.finished(): return 0
+        rem_work = sum([t.time for t in self.seq[self.next_task:]]) + self.remt
+        rem_time = self.due - time
+        return rem_time - rem_work
 
 class Task:
     def __init__(self, task_id, time, job_id, using):
@@ -57,6 +75,9 @@ class Task:
         self.using = using
 
 class State:
+    def __init__(self):
+        pass
+
     def __init__(self, data):
         self.data = data
         self.nb_jobs = data["nb_jobs"]
@@ -79,6 +100,24 @@ class State:
         self.remt_operators = [0 for k in range(self.nb_operators)]
 
         self.trace = []
+
+    def copy(self):
+        ret = State()
+        ret.data = self.data
+        ret.nb_jobs = self.nb_jobs
+        ret.nb_tasks = self.nb_tasks
+        ret.nb_machines = self.nb_machines
+        ret.nb_operators = self.nb_operators
+
+        ret.tasks = self.tasks
+        ret.jobs = [j.copy() for j in jobs]
+        ret.time = self.time
+        ret.remt_machines = self.remt_machines.deepcopy()
+        ret.remt_operators = self.remt_operators.deepcopy()
+
+        ret.trace = self.trace.deepcopy()
+
+        return ret
 
     def is_workpair_free(self, pair):
         return self.remt_machines[pair[0]] == 0 and self.remt_operators[pair[1]] == 0
@@ -110,6 +149,40 @@ class State:
                     job.work(self.time)
                     break
 
+    def cautious_plan(self):
+        self.jobs.sort(key=(lambda x: x.get_bonus_time(self.time)))
+        for job in self.jobs:
+            if not job.sleeping(self.time): continue
+            wps = job.get_workpairs().copy()
+            random.shuffle(wps)
+            for wp in job.get_workpairs():
+                if self.is_workpair_free(wp):
+                    self.assign_work(job.next_id(), wp, job.next_time())
+                    job.work(self.time)
+                    break
+
+    def cautious_force_plan(self):
+        sort(self.jobs, key=Jobs.get_bonus_time, reverse=True)
+        for job in self.jobs:
+            if not job.sleeping(self.time): continue
+            best_nb = 0
+            best_state = None
+            for k in range(10):
+                tmp = self.copy()
+                nb = 0
+                wps = job.get_workpairs().copy()
+                random.shuffle(wps)
+                for wp in job.get_workpairs():
+                    if tmp.is_workpair_free(wp):
+                        nb += 1
+                        tmp.assign_work(job.next_id(), wp, job.next_time())
+                        job.work(self.time)
+                        break
+                if nb > best_nb:
+                    best_nb = nb
+                    best_state = tmp
+            self = tmp
+
     def finished(self):
         return all([job.finished() for job in self.jobs])
 
@@ -132,6 +205,25 @@ class State:
             self.step()
         return self.output()
 
+    def cautious_sol(self):
+        while not self.finished():
+            self.cautious_plan()
+            self.step()
+        return self.output()
+
+    def cautious_force_sol(self):
+        while not self.finished():
+            self.cautious_force_plan()
+            self.step()
+        return self.output()
+
 def process_very_basic(data):
     x = State(data)
     return x.very_basic_sol()
+
+def process_cautious(data):
+    x = State(data)
+    return x.cautious_sol()
+
+def process(data):
+    return process_cautious(data)
