@@ -1,6 +1,32 @@
 import random
 import math
 from copy import deepcopy
+from util import *
+
+LAST_JOB_PENALITY = [0] * 200
+
+def add_penality(in_data, out_data):
+    score = 0
+    penalities = [0] * in_data['nb_jobs']
+    for job_id in range(in_data['nb_jobs']):
+        last_task = in_data['jobs']['sequence'][job_id][-1]
+        end_time = out_data['task_start'][last_task] + in_data['tasks']['time'][last_task]
+        max_time = in_data['jobs']['due'][job_id]
+        w = in_data['jobs']['weight'][job_id]
+        score = w * end_time
+        if end_time > max_time:
+            score += w * UNIT_PENALTY
+            score += w * TARDINESS_COST * (end_time - max_time)
+
+        
+        penalities[job_id] = score
+    
+    maxi = max(penalities)
+    penalities = [math.log(p) for p in penalities]
+    # penalities = [p/maxi for p in penalities]
+    for i in range(len(penalities)):
+        LAST_JOB_PENALITY[i] += penalities[i]
+        
 
 class Job:
     def __init__(self, job_id=None, seq=None, rel=None, due=None, w=None, tasks=None):
@@ -161,6 +187,8 @@ class State:
                 t = t * job.w
                 # t = math.log(1+t)
             t = t + t * random.random() * 0.1
+            p = LAST_JOB_PENALITY[job.id]
+            t = t * (1+p)
             return t
         self.jobs.sort(key=job_rank)
         for job in self.jobs:
@@ -178,13 +206,13 @@ class State:
         def job_rank(job):
             t = job.get_bonus_time(self.time)
             t = t * job.w
-            t = t + t * random.random() * 0.1
+            t = t + t * random.random() * 0.2
             return t
         self.jobs.sort(key=job_rank)
 
         best_nb = -1
         best_state = None
-        for k in range(10):
+        for k in range(5):
             tmp = self.copy()
             nb = 0
             for job in tmp.jobs:
