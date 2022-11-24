@@ -17,7 +17,8 @@ OUT_SUFFIX = '-out-1' # TODO : to have different solutions names
 
 # ========== Constants ==========
 
-# TODO: depends on the subject
+UNIT_PENALTY = 6
+TARDINESS_COST = 1
 
 # ========== Compute vals on sols ==========
 
@@ -58,7 +59,7 @@ def output_sol_if_better(name, data):
     """ Returns True if the solution is better than the last found solution in this program run,
         even solution already written in the JSON file is even better.
         Updates BEST_SOLS_DATA and BEST_SOLS """
-    sol_val = eval_sol(data)
+    sol_val = eval_sol(IN_DATA[name], data, check=True)
     if name in BEST_SOLS and is_better_sol(sol_val, BEST_SOLS[name]):
         return False
     BEST_SOLS[name] = sol_val
@@ -70,7 +71,7 @@ def output_sol_if_better(name, data):
     except:
         pass
     if cur_file_sol is not None:
-        old_val = eval_sol(cur_file_sol)
+        old_val = eval_sol(IN_DATA[name], cur_file_sol)
         if not is_better_sol(old_val, sol_val):
             return True
     print(f"----> Found solution for {name} of value {sol_val}")
@@ -79,11 +80,35 @@ def output_sol_if_better(name, data):
 
 # ========== Evaluation ==========
 
-def eval_sol(data):
-    return 0
+def eval_sol(in_data, out_data, check=False):
+    # Assert sol is good
+    if check:
+        for job_id in range(in_data):
+            rel = in_data['jobs']['release'][job_id]
+            for task_id in in_data['jobs']['sequence'][job_id]:
+                start_time = out_data['task_start'][task_id]
+                end_time = start_time + in_data['tasks']['time'][task_id]
+                # task_times.append((start_time, end_time))
+                assert start_time >= rel
+                rel = end_time
+                assert out_data['task_to'][task_id] in in_data['tasks']['using'][task_id]
+            
+            # TODO : check if not 2 machines / operator used at the same time
+
+    # Score
+    score = 0
+    for job_id in range(in_data['nb_jobs']):
+        last_task = in_data['jobs']['sequence'][job_id][-1]
+        end_time = out_data['task_start'][last_task] + in_data['tasks']['time'][last_task]
+        max_time = in_data['jobs']['due'][job_id]
+        w = in_data['jobs']['weight'][job_id]
+        score += w * end_time
+        if end_time > max_time:
+            score += w * UNIT_PENALTY
+            score += w * TARDINESS_COST * (end_time - max_time)
 
 def is_better_sol(old_sol_value, new_sol_value):
-    return new_sol_value > old_sol_value # TODO : Replace by < if the best value is the lower one
+    return new_sol_value < old_sol_value # TODO : Replace by < if the best value is the lower one
             
 
 # ========== Utilities ==========
