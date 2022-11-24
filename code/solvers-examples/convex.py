@@ -1,7 +1,7 @@
 # https://www.cvxpy.org/
 # Functions : https://www.cvxpy.org/tutorial/functions/index.html#scalar-functions
 
-# python3 -m pip install --upgrade cvxpy
+# pip install --upgrade cvxpy
 
 import cvxpy as cp
 import numpy as np
