@@ -50,10 +50,16 @@ def read_sol(name):
         data = json.load(f)
     return data
 
+def transform_to_output(data):
+    return [
+        {"task": k+1, "start": t, "machine": m+1, "operator": o+1}
+        for (k, ((m, o), t)) in enumerate(zip(data["task_to"], data["task_start"]))
+    ]
+
 def output_sol_force_overwrite(name, data):
     p = Path('../sols') / _out_with_suffix(name)
     with open(str(p), 'w') as f:
-        json.dump(data, f)
+        json.dump(transform_to_output(data), f)
 
 def output_sol_if_better(name, data):
     """ Returns True if the solution is better than the last found solution in this program run,
