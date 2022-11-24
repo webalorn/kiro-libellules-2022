@@ -92,6 +92,8 @@ def optimize_changed_couple(in_data,out_data):
         possibleOp = False
         esperance = 0
         while (not(possibleM) or not(possibleOp)) and esperance < 100:
+            possibleM = False
+            possibleOp = False
             new_m,new_op = l[randint(0,len(l)-1)]
             esperance += 1
             if (new_m,new_op) != (m_curr,op_curr):
