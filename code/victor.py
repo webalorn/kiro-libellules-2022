@@ -153,7 +153,7 @@ class State:
 
     def cautious_plan(self):
         def job_rank(job):
-            t = job.get_bonus_time(self.time)
+            t = job.get_bonus_time(self.time) ** 2
             if t < 0:
                 # t = (t*2+6) * job.w ** 0.7
                 t = t * job.w
