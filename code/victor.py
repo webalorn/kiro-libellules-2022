@@ -1,4 +1,5 @@
 import random
+import math
 
 class Job:
     def __init__(self):
@@ -150,7 +151,18 @@ class State:
                     break
 
     def cautious_plan(self):
-        self.jobs.sort(key=(lambda x: x.get_bonus_time(self.time)))
+        def job_rank(job):
+            t = job.get_bonus_time(self.time)
+            if t < 0:
+                # t = (t*2+6) * job.w ** 0.7
+                t = t * job.w ** 0.5
+                # t = -math.log(1-t)
+            else:
+                t = t * job.w ** 0.5
+                # t = math.log(1+t)
+            t = t + t * random.random() * 0.5
+            return t
+        self.jobs.sort(key=job_rank)
         for job in self.jobs:
             if not job.sleeping(self.time): continue
             wps = job.get_workpairs().copy()
