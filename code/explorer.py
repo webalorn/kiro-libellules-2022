@@ -6,9 +6,9 @@ import random
 # MAX_DEPTH = 4
 # PENALTY_NOT_ASSIGNED_TASK = 1
 
-N_RANKED = 6
-MAX_DEPTH = 5
-PENALTY_NOT_ASSIGNED_TASK = 1
+N_RANKED = 5
+MAX_DEPTH = 4
+PENALTY_NOT_ASSIGNED_TASK = 0.5
 
 def scoring1(in_data, cur_time, assigned_times):
     score = 0

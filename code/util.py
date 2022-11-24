@@ -15,7 +15,11 @@ BEST_SOLS_DATA = {}
 IN_DATA = {}
 INPUT_NAMES = [e.name for e in Path('../inputs').iterdir() if e.name.endswith('.json')]
 
-OUT_SUFFIX = '-out-1-'+os.getlogin() # TODO : to have different solutions names
+try:
+    login = os.getlogin()
+except:
+    login = 'meana'
+OUT_SUFFIX = '-out-1-'+login # TODO : to have different solutions names
 
 # ========== Constants ==========
 
