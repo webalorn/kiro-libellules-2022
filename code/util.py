@@ -9,16 +9,15 @@ import json
 import time
 
 import os
+import getpass
 
 BEST_SOLS = {}
 BEST_SOLS_DATA = {}
 IN_DATA = {}
 INPUT_NAMES = [e.name for e in Path('../inputs').iterdir() if e.name.endswith('.json')]
 
-try:
-    login = os.getlogin()
-except:
-    login = 'meana'
+login = getpass.getuser()
+
 OUT_SUFFIX = '-out-1-'+login # TODO : to have different solutions names
 
 # ========== Constants ==========

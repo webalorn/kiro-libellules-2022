@@ -3,21 +3,22 @@ import time
 # TODO : should import functions from modules
 import victor
 import explorer
+from optimze import *
 
 def generate_base_solution(in_data):
     return victor.process(in_data)
     #return {'empty' : True} # TODO : use functions from modules
 
-def improve_sol(data):
-    
-    return data # TODO : use functions from modules
+def improve_sol(in_data,out_data):
+    return optimize_changed_couple(in_data,out_data)
+
 
 # ========== Main loop ==========
 
 def main():
     inputs_names = INPUT_NAMES
     # If we want to tune only some solutions ->
-    # inputs_names = ["medium.json"] 
+    inputs_names = ["medium.json"] 
 
     start_time = time.time()
     read_all_inputs()
@@ -43,7 +44,7 @@ def main():
         in_data = IN_DATA[name]
         for k in range(N_TRY_IMPROVE):
             print(f"{k+1}/{N_TRY_IMPROVE}", end="\r")
-            sol_data = improve_sol(BEST_SOLS_DATA[name])
+            sol_data = improve_sol(in_data,BEST_SOLS_DATA[name])
             output_sol_if_better(name, sol_data)
         print()
     
