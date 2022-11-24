@@ -88,6 +88,18 @@ def is_better_sol(old_sol_value, new_sol_value):
 
 # ========== Utilities ==========
 
+COLORS = {
+    'PURPLE': '\033[95m',
+    'BLIE': '\033[94m',
+    'CYAN': '\033[96m',
+    'GREEN': '\033[92m',
+    'ORANGE': '\033[93m',
+    'RED': '\033[91m',
+    'END': '\033[0m',
+    'BOLD': '\033[1m',
+    'UNDERLINE': '\033[4m',
+}
+
 def _print_color(color, *args, **kwargs):
     print(f"{color}{args[0]}", *args[1:], '\033[0m', **kwargs)
 
