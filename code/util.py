@@ -68,7 +68,7 @@ def preprocess_input(data):
 
     jobs["sequence"] = sequence
     jobs["release"] = release
-    jobs["due"] = release
+    jobs["due"] = due
     jobs["weight"] = weight
 
     preprocess_data["jobs"] = jobs
