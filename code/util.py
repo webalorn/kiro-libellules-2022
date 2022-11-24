@@ -36,8 +36,77 @@ def generate_empty_solution(in_data):
 # ========== Input / Output ==========
 
 def preprocess_input(data):
-    # TODO si nécessaire ??
-    return data
+
+    preprocess_data = dict()
+
+    # keys nb_jobs, nb_tasks, nb_machines, nb_operators
+    nb_jobs = data["parameters"]["size"]["nb_jobs"]
+    nb_tasks = data["parameters"]["size"]["nb_tasks"]
+    nb_machines = data["parameters"]["size"]["nb_machines"]
+    nb_operators = data["parameters"]["size"]["nb_operators"]
+    preprocess_data["nb_jobs"] = nb_jobs
+    preprocess_data["nb_tasks"] = nb_tasks
+    preprocess_data["nb_machines"] = nb_machines
+    preprocess_data["nb_operators"] = nb_operators
+
+    # key jobs
+    jobs = dict()
+
+    job_id = [0]*nb_tasks # for the key tasks
+
+    sequence = [0]*nb_jobs
+    release = [0]*nb_jobs
+    due = [0]*nb_jobs
+    weight = [0]*nb_jobs
+
+    info_job = data["jobs"]
+    for job_i in info_job:
+        ind = job_i["job"] - 1
+        s = job_i["sequence"][::]
+        for elt in range(len(s)):
+            s[elt] -= 1
+            job_id[s[elt]] = ind
+        sequence[ind] = s
+
+        release[ind] = job_i["release_date"]
+        
+        due[ind] = job_i["due_date"]
+
+        weight[ind] = job_i["weight"]
+
+    jobs["sequence"] = sequence
+    jobs["release"] = release
+    jobs["due"] = due
+    jobs["weight"] = weight
+
+    preprocess_data["jobs"] = jobs
+
+    # key tasks
+    tasks = dict()
+
+    time = [0]*nb_tasks
+    using = [[] for _ in range(nb_tasks)]
+
+    tasks_info = data["tasks"]
+    for task_i in tasks_info:
+        ind = task_i["task"] - 1
+
+        time[ind] = task_i["processing_time"]
+
+        possible_use = task_i["machines"]
+        for couple in possible_use:
+            op = couple["operators"][::]
+            for elt in range(len(op)):
+                op[elt] -= 1
+            using[ind].append((couple["machine"]-1,op))
+    
+    tasks["time"] = time
+    tasks["job_id"] = job_id
+    tasks["using"] = using
+
+    preprocess_data["tasks"] = tasks
+
+    return preprocess_data
 
 def read_input(name):
     p = Path('../inputs') / name
