@@ -96,9 +96,13 @@ def optimize_changed_couple(in_data,out_data):
                     if mach_used[new_m][i][1] <= deb_curr and mach_used[new_m][i+1][0] >= end_curr:
                         possibleM = True
                         break
+                    if mach_used[new_m][i][0] >= end_curr:
+                        break
                 for i in range(len(op_used)-1):
                     if op_used[new_op][i][1] <= deb_curr and op_used[new_op][i+1][0] >= end_curr:
                         possibleOp = True
+                        break
+                    if op_used[new_op][i][0] >= end_curr:
                         break
         
         if possibleM and possibleOp:
