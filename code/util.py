@@ -18,7 +18,7 @@ INPUT_NAMES = [e.name for e in Path('../inputs').iterdir() if e.name.endswith('.
 
 login = getpass.getuser()
 
-OUT_SUFFIX = '-out-1-'+login # TODO : to have different solutions names
+OUT_SUFFIX = '-out-3-'+login # TODO : to have different solutions names
 
 # ========== Constants ==========
 

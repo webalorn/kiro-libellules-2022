@@ -116,7 +116,6 @@ class State:
         self.nb_tasks =     other.nb_tasks
         self.nb_machines =  other.nb_machines
         self.nb_operators = other.nb_operators
-        self.tasks = other.tasks
         self.jobs = [j.copy() for j in other.jobs]
         self.time = other.time
         self.remt_machines = deepcopy(other.remt_machines)
@@ -175,26 +174,33 @@ class State:
                     break
 
     def cautious_force_plan(self):
-        self.jobs.sort(key=(lambda x: x.get_bonus_time(self.time)))
-        for job in self.jobs:
-            if not job.sleeping(self.time): continue
-            best_nb = 0
-            best_state = None
-            for k in range(1):
-                tmp = self.copy()
-                nb = 0
+        # self.jobs.sort(key=(lambda x: x.get_bonus_time(self.time)))
+        def job_rank(job):
+            t = job.get_bonus_time(self.time)
+            t = t * job.w
+            t = t + t * random.random() * 0.1
+            return t
+        self.jobs.sort(key=job_rank)
+
+        best_nb = -1
+        best_state = None
+        for k in range(10):
+            tmp = self.copy()
+            nb = 0
+            for job in tmp.jobs:
+                if not job.sleeping(tmp.time): continue
                 wps = job.get_workpairs().copy()
                 random.shuffle(wps)
                 for wp in job.get_workpairs():
                     if tmp.is_workpair_free(wp):
                         nb += 1
                         tmp.assign_work(job.next_id(), wp, job.next_time())
-                        job.work(self.time)
+                        job.work(tmp.time)
                         break
-                if nb > best_nb:
-                    best_nb = nb
-                    best_state = tmp
-            self.load(tmp)
+            if nb > best_nb:
+                best_nb = nb
+                best_state = tmp
+        self.load(best_state)
 
     def finished(self):
         return all([job.finished() for job in self.jobs])
@@ -244,3 +250,4 @@ def process_cautious_force(data):
 
 def process(data):
     return process_cautious(data)
+    return process_cautious_force(data)

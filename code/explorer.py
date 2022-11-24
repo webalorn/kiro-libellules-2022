@@ -63,9 +63,8 @@ def explore_sol(in_data, cur_time, realease_order, last_realeased, task_next, ta
             if machine_end[machine_id] <= cur_time and ope_end[ope_id] <= cur_time:
                 ranked_pool.append((task_id, (machine_id, ope_id)))
     
-    ranked_pool = select_ranked_pool(in_data, ranked_pool)
-    # if predict_depth > 1:
-    #     pass
+    if predict_depth > 1:
+        ranked_pool = select_ranked_pool(in_data, ranked_pool)
     #     # TODO: if not main, ranked task pool
 
     if predict_depth < MAX_DEPTH and len(ranked_pool):
