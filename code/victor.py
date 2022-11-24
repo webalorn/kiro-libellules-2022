@@ -22,10 +22,14 @@ def add_penality(in_data, out_data):
         penalities[job_id] = score
     
     maxi = max(penalities)
-    penalities = [math.log(p) for p in penalities]
-    # penalities = [p/maxi for p in penalities]
+    # penalities = [math.log(p / maxi**0.5) for p in penalities]
+    # penalities = [p/3 for p in penalities]
+    # penalities = [math.log(1+p/maxi) for p in penalities]
+    penalities = [p/maxi for p in penalities]
     for i in range(len(penalities)):
+        # LAST_JOB_PENALITY[i] *= 0.9
         LAST_JOB_PENALITY[i] += penalities[i]
+        # LAST_JOB_PENALITY[i] += penalities[i]
         
 
 class Job:
@@ -180,15 +184,19 @@ class State:
         def job_rank(job):
             t = job.get_bonus_time(self.time)
             if t < 0:
-                # t = (t*2+6) * job.w ** 0.7
-                t = t * job.w
+                t = (t*2+6) * job.w ** 0.7
+                # t = t * job.w # ** 0.5
                 # t = -math.log(1-t)
             else:
-                t = t * job.w
+                t = t * job.w ** 0.7
                 # t = math.log(1+t)
-            t = t + t * random.random() * 0.1
+            t = t + t * random.random() * 0.5
+            t = min(t, 50)
+            # t = max(t, -50)
             p = LAST_JOB_PENALITY[job.id]
-            t = t * (1+p)
+            # t = t * (1+p)
+            p = math.log(2 + p)
+            t = t * p
             return t
         self.jobs.sort(key=job_rank)
         for job in self.jobs:
