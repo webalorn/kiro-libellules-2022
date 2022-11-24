@@ -1,4 +1,4 @@
-import copy import deepcopy
+from copy import deepcopy
 from util import *
 
 def optimize_simple(in_data, out_data):
@@ -53,22 +53,63 @@ def optimize_simple(in_data, out_data):
 
 #Look if it can replace a current couple for a task with another more interesting couple.
 def optimize_changed_couple(in_data,out_data):
-    mach_used = [[] for _ in range(in_data['nb_machines'])]
-    op_used = [[] for _ in range (in_data['nb_operators'])]
+    out_data = out_data.deepcopy()
 
-    for id_task in range(in_data['nb_tasks']):
-        debut_time = out_data['task_start'][id_task]
-        machine = out_data['task_to'][id_task][0]
-        op = out_data['task_to'][id_task][1]
-        end_time = debut_time+in_data['tasks']['time'][id_task]
-        mach_used[machine].append((debut_time,end_time))
-        op_used[op].append((debut_time,end_time))
+    for i in range(10000):
+        mach_used = [[] for _ in range(in_data['nb_machines'])]
+        op_used = [[] for _ in range (in_data['nb_operators'])]
 
-    for i in range(in_data['nb_operators']):
-        op_used[i] = sorted(op_used[i])
+        for id_task in range(in_data['nb_tasks']):
+            debut_time = out_data['task_start'][id_task]
+            machine = out_data['task_to'][id_task][0]
+            op = out_data['task_to'][id_task][1]
+            end_time = debut_time+in_data['tasks']['time'][id_task]
+            mach_used[machine].append((debut_time,end_time,id_task))
+            op_used[op].append((debut_time,end_time,id_task))
+
+        for i in range(in_data['nb_operators']):
+            op_used[i] = sorted(op_used[i])
+        
+        for i in range(in_data['nb_machines']):
+            mach_used[i] = sorted(mach_used[i])
+
+        nb_tasks = in_data['nb_tasks']
+
+        id_task = randint(0,nb_tasks-1)
+
+        m_curr,op_curr = out_data['task_to'][id_task]
+
+        deb_curr, end_curr = (0,0)
+        for deb,end,id in mach_used[m_curr]:
+            if id == id_task:
+                deb_curr = deb
+                end_curr = end
+                break
+
+        l = in_data['tasks']['using'][id_task]
+
+        possibleM = False
+        possibleOp = False
+        esperance = 0
+        while not(possibleM) or not(possibleOp) and esperance < 10000:
+            new_m,new_op = l[randint(0,len(l)-1)]
+            esperance += 1
+            if (new_m,new_op) != (m_curr,op_curr):
+                for i in range(len(mach_used)-1):
+                    if mach_used[new_m][i][1] <= deb_curr and mach_used[new_m][i+1][0] >= end_curr:
+                        possibleM = True
+                        break
+                    if mach_used[new_m][i][0] >= end_curr:
+                        break
+                for i in range(len(op_used)-1):
+                    if op_used[new_op][i][1] <= deb_curr and op_used[new_op][i+1][0] >= end_curr:
+                        possibleOp = True
+                        break
+                    if op_used[new_op][i][0] >= end_curr:
+                        break
+        
+        if possibleM and possibleOp:
+            out_data['task_to'][id_task] = (new_m,new_op)
+            out_data = optimize_simple(in_data,out_data)
     
-    for i in range(in_data['nb_machines']):
-        mach_used[i] = sorted(mach_used[i])
-
-    
-
+    return out_data
