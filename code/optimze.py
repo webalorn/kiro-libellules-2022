@@ -5,12 +5,12 @@ def optimize_simple(in_data, out_data):
     out_data = deepcopy(out_data)
     machine_at = set()
     ope_at = set()
-    sorted_task_ids = task_ids_sorted_by_time(out_data['time'])
+    sorted_task_ids = task_ids_sorted_by_time(out_data['task_start'])
     
     for task_id in sorted_task_ids:
-        task_t = out_data['time'][task_id]
-        task_last_t = out_data['time'][task_id] + in_data['tasks']['time'][task_id]-1
-        a_machine, a_ope = out_data['task_to']
+        task_t = out_data['task_start'][task_id]
+        task_last_t = out_data['task_start'][task_id] + in_data['tasks']['time'][task_id]-1
+        a_machine, a_ope = out_data['task_to'][task_id]
         machine_at.add((a_machine, task_t))
         ope_at.add((a_ope, task_t))
         machine_at.add((a_machine, task_last_t))
@@ -18,10 +18,10 @@ def optimize_simple(in_data, out_data):
     
     job_last_at = [t0 for t0 in in_data['jobs']['release']]
     for task_id in sorted_task_ids:
-        task_t = out_data['time'][task_id]
+        task_t = out_data['task_start'][task_id]
         durm1 = in_data['tasks']['time'][task_id]-1
-        task_last_t = out_data['time'][task_id] + durm1
-        a_machine, a_ope = out_data['task_to']
+        task_last_t = out_data['task_start'][task_id] + durm1
+        a_machine, a_ope = out_data['task_to'][task_id]
 
         machine_at.remove((a_machine, task_t))
         ope_at.remove((a_ope, task_t))
@@ -29,7 +29,7 @@ def optimize_simple(in_data, out_data):
             machine_at.remove((a_machine, task_last_t))
             ope_at.remove((a_ope, task_last_t))
 
-        for t0 in range(job_last_at[in_data['job_id'][task_id]], task_t-1):
+        for t0 in range(job_last_at[in_data['tasks']['job_id'][task_id]], task_t-1):
             t0_last = t0 + durm1
             for (a2_machine, a2_ope) in in_data['tasks']['using'][task_id]:
                 if ((a2_machine, t0) not in machine_at
@@ -37,25 +37,25 @@ def optimize_simple(in_data, out_data):
                     and (a2_machine, t0_last) not in machine_at
                     and (a2_ope, t0_last) not in ope_at):
                     a_machine, a_ope, task_t, task_last_t = a2_machine, a2_ope, t0, t0_last
-                    out_data['task_to'] = (a2_machine, a2_ope)
-                    out_data['task_start'] = t0
+                    out_data['task_to'][task_id] = (a2_machine, a2_ope)
+                    out_data['task_start'][task_id] = t0
                     break
         
-        machine_at.add((a_machine, t0))
-        ope_at.add((a_ope, t0))
+        machine_at.add((a_machine, task_t))
+        ope_at.add((a_ope, task_t))
         if durm1:
-            machine_at.add((a_machine, t0_last))
-            ope_at.add((a_ope, t0_last))
+            machine_at.add((a_machine, task_last_t))
+            ope_at.add((a_ope, task_last_t))
         
-        job_last_at[in_data['job_id'][task_id]] = task_last_t+1
+        job_last_at[in_data['tasks']['job_id'][task_id]] = task_last_t+1
     return out_data
 
 
 #Look if it can replace a current couple for a task with another more interesting couple.
 def optimize_changed_couple(in_data,out_data):
-    out_data = out_data.deepcopy()
+    out_data = deepcopy(out_data)
 
-    for i in range(10000):
+    for i in range(100):
         mach_used = [[] for _ in range(in_data['nb_machines'])]
         op_used = [[] for _ in range (in_data['nb_operators'])]
 
@@ -91,17 +91,17 @@ def optimize_changed_couple(in_data,out_data):
         possibleM = False
         possibleOp = False
         esperance = 0
-        while not(possibleM) or not(possibleOp) and esperance < 10000:
+        while (not(possibleM) or not(possibleOp)) and esperance < 100:
             new_m,new_op = l[randint(0,len(l)-1)]
             esperance += 1
             if (new_m,new_op) != (m_curr,op_curr):
-                for i in range(len(mach_used)-1):
+                for i in range(len(mach_used[new_m])-1):
                     if mach_used[new_m][i][1] <= deb_curr and mach_used[new_m][i+1][0] >= end_curr:
                         possibleM = True
                         break
                     if mach_used[new_m][i][0] >= end_curr:
                         break
-                for i in range(len(op_used)-1):
+                for i in range(len(op_used[new_op])-1):
                     if op_used[new_op][i][1] <= deb_curr and op_used[new_op][i+1][0] >= end_curr:
                         possibleOp = True
                         break

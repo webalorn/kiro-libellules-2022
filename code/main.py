@@ -18,7 +18,7 @@ def improve_sol(in_data,out_data):
 def main():
     inputs_names = INPUT_NAMES
     # If we want to tune only some solutions ->
-    # inputs_names = ["medium.json"] 
+    inputs_names = ["medium.json"] 
 
     start_time = time.time()
     read_all_inputs()
