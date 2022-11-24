@@ -2,7 +2,7 @@
 # https://github.com/pysathq/pysat/blob/master/examples/usage.py
 # https://github.com/pysathq/pysat/blob/master/pysat/solvers.py
 
-# python3 -m pip install --upgrade python-sat
+# pip install --upgrade python-sat
 
 from pysat.solvers import Solver
 import random
